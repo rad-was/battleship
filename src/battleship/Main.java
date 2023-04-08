@@ -9,7 +9,7 @@ public class Main {
     public static void main(String[] args) {
         // Create empty game field
         int gameFieldSize = 10;  // max size would be 26 because that many letters in the alphabet
-        String gameField[][] = new String[gameFieldSize + 1][gameFieldSize + 1];
+        String[][] gameField = new String[gameFieldSize + 1][gameFieldSize + 1];
         createEmptyGameField(gameField, gameFieldSize);
 
         printGameField(gameField, gameFieldSize);
@@ -33,7 +33,7 @@ public class Main {
         }
     }
 
-    public static void createEmptyGameField(String gameField[][], int size) {
+    public static void createEmptyGameField(String[][] gameField, int size) {
         for (int i = 0; i < size + 1; ++i) {
             for (int j = 0; j < size + 1; ++j) {
                 if (i == 0) {
@@ -47,7 +47,7 @@ public class Main {
         }
     }
 
-    public static void printGameField(String gameField[][], int size) {
+    public static void printGameField(String[][] gameField, int size) {
         for (int i = 0; i < size + 1; ++i) {
             for (int j = 0; j < size + 1; ++j) {
                 System.out.printf("%s  ", gameField[i][j]);
@@ -69,7 +69,7 @@ public class Main {
                 System.out.println("Error 2! Wrong ship location! Try again:");
                 return false;
             }
-            if (Integer.parseInt(next.substring(1, next.length())) > gameFieldSize) {
+            if (Integer.parseInt(next.substring(1)) > gameFieldSize) {
                 System.out.println("Error 3! Wrong ship location! Try again:");
                 return false;
             }
