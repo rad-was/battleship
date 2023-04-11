@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Scanner;
 
-public class Battlefield {
+public class Battleship {
     private final int gameFieldSize;  // max size would be 26 because that many letters in the alphabet
     private final String[][] gameField;
     private static final LinkedHashMap<String, Integer> ships = new LinkedHashMap<>();
@@ -17,7 +17,7 @@ public class Battlefield {
         ships.put("Destroyer", 2);
     }
 
-    public Battlefield(int size) {
+    public Battleship(int size) {
         this.gameFieldSize = size;
         this.gameField = new String[size + 2][size + 2];
         for (int i = 0; i < size + 1; ++i) {
