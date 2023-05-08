@@ -39,6 +39,9 @@ public class Battleship {
 
     public void startGame() {
         addShips();
+        System.out.println("The game starts!\n");
+        print();
+        shoot();
     }
 
     // Add ships
@@ -153,6 +156,34 @@ public class Battleship {
             int max = Math.max(row1, row2);
             for (int row = min; row <= max; ++row) {
                 gameField[row][column1] = "O";
+            }
+        }
+    }
+
+    private void shoot() {
+        System.out.println("Take a shot!\n");
+        System.out.print("> ");
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            String shotCoordinate = scanner.nextLine();
+            // Check if valid coordinate
+            if (shotCoordinate.matches("^[A-Z]([1-9]|1\\d|2[0-6])$") &&
+                    (shotCoordinate.charAt(0) - 'A' < this.gameFieldSize) &&
+                    (Integer.parseInt(shotCoordinate.substring(1)) <= this.gameFieldSize)) {
+                // Check if hit or miss
+                int row = shotCoordinate.charAt(0) - 'A' + 1;
+                int column = Integer.parseInt(shotCoordinate.substring(1));
+                if (this.gameField[row][column].equals("O")) {
+                    this.gameField[row][column] = "X";
+                    System.out.println("\nYou hit a ship!\n");
+                } else {
+                    this.gameField[row][column] = "M";
+                    System.out.println("\nYou missed!\n");
+                }
+                print();
+                break;
+            } else {
+                System.out.println("Wrong coordinate. Try again.");
             }
         }
     }
