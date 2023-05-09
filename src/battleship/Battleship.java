@@ -16,6 +16,8 @@ public class Battleship {
         ships.put("Cruiser", 3);
         ships.put("Destroyer", 2);
     }
+    private int row1, row2, column1, column2;
+    private boolean assigned = false;
 
     public Battleship(int size) {
         this.gameFieldSize = size;
@@ -55,7 +57,7 @@ public class Battleship {
                 coordinates = scanner.nextLine();
                 System.out.println();
             } while (!checkCoordinates(coordinates, key));
-            drawShip(coordinates);
+            addShipToGameField();
             print();
         }
     }
@@ -80,71 +82,52 @@ public class Battleship {
             }
         }
         // Check if ship doesn't touch any other ships
-        scn = new Scanner(coordinates);
-        int row1, row2, column1, column2;
-
-        String next = scn.next();
-        row1 = next.charAt(0) - 'A' + 1;
-        column1 = Integer.parseInt(next.substring(1));
-
-        next = scn.next();
-        row2 = next.charAt(0) - 'A' + 1;
-        column2 = Integer.parseInt(next.substring(1));
-
+        assignCoordinatesToRowsAndColumns(coordinates);
         if (row1 == row2) {
-            int min = Math.min(column1, column2);
-            int max = Math.max(column1, column2);
-            if (!(max - min + 1 == ships.get(shipName))) {  // Check if ship takes up correct number of fields
-                System.out.println("Error 5! Coordinates don't match the number of fields for the current ship! Try again:");
-                return false;
-            }
-            for (int column = min; column <= max; ++column) {  // Check if ship doesn't touch any other ships
-                if (this.gameField[row1][column].contains("O") ||
-                        this.gameField[row1 - 1][column].contains("O") ||
-                        this.gameField[row1 + 1][column].contains("O") ||
-                        this.gameField[row1][column - 1].contains("O") ||
-                        this.gameField[row1][column + 1].contains("O")) {
-                    System.out.println("Error 6! Ship cannot touch any other ship! Try again:");
-                    return false;
-                }
-            }
+            return checkCoordinatesOnRowOrColumn(shipName, column1, column2);
         } else if (column1 == column2) {
-            int min = Math.min(row1, row2);
-            int max = Math.max(row1, row2);
-            if (!(max - min + 1 == ships.get(shipName))) {  // Check if ship takes up correct number of fields
-                System.out.println("Error 5! Coordinates don't match the number of fields for the current ship! Try again:");
-                return false;
-            }
-            for (int row = min; row <= max; ++row) {  // Check if ship doesn't touch any other ships
-                if (this.gameField[row][column1].contains("O") ||
-                        this.gameField[row - 1][column1].contains("O") ||
-                        this.gameField[row + 1][column1].contains("O") ||
-                        this.gameField[row][column1 - 1].contains("O") ||
-                        this.gameField[row][column1 + 1].contains("O")) {
-                    System.out.println("Error 6! Ship cannot touch any other ship! Try again:");
-                    return false;
-                }
-            }
+            return checkCoordinatesOnRowOrColumn(shipName, row1, row2);
         } else {
             System.out.println("Error 4! Ships can only be placed in a straight line! Try again:");
             return false;
         }
+    }
 
+    private boolean checkCoordinatesOnRowOrColumn(String shipName, int rowOrColumn1, int rowOrColumn2) {
+        int min = Math.min(rowOrColumn1, rowOrColumn2);
+        int max = Math.max(rowOrColumn1, rowOrColumn2);
+        if (!(max - min + 1 == ships.get(shipName))) {  // Check if ship takes up correct number of fields
+            System.out.println("Error 5! Coordinates don't match the number of fields for the current ship! Try again:");
+            return false;
+        }
+        for (int column = min; column <= max; ++column) {  // Check if ship doesn't touch any other ships
+            if (this.gameField[row1][column].contains("O") ||
+                    this.gameField[row1 - 1][column].contains("O") ||
+                    this.gameField[row1 + 1][column].contains("O") ||
+                    this.gameField[row1][column - 1].contains("O") ||
+                    this.gameField[row1][column + 1].contains("O")) {
+                System.out.println("Error 6! Ship cannot touch any other ship! Try again:");
+                return false;
+            }
+        }
         return true;
     }
 
-    private void drawShip(String coordinates) {
+    private void assignCoordinatesToRowsAndColumns(String coordinates) {
         Scanner scn = new Scanner(coordinates);
-        int row1, row2, column1, column2;
-
         String next = scn.next();
         row1 = next.charAt(0) - 'A' + 1;
         column1 = Integer.parseInt(next.substring(1));
-
         next = scn.next();
         row2 = next.charAt(0) - 'A' + 1;
         column2 = Integer.parseInt(next.substring(1));
+        assigned = true;
+    }
 
+    private void addShipToGameField() {
+        if (!assigned) {
+            System.exit(1);
+        }
         if (row1 == row2) {
             int min = Math.min(column1, column2);
             int max = Math.max(column1, column2);
