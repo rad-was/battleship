@@ -175,9 +175,13 @@ public class Battleship {
                 int column = Integer.parseInt(shotCoordinate.substring(1));
                 if (this.gameField[row][column].equals("O")) {
                     this.gameField[row][column] = "X";
+                    System.out.println();
+                    printWithoutShips();
                     System.out.println("\nYou hit a ship!\n");
                 } else {
                     this.gameField[row][column] = "M";
+                    System.out.println();
+                    printWithoutShips();
                     System.out.println("\nYou missed!\n");
                 }
                 print();
@@ -192,6 +196,20 @@ public class Battleship {
         for (int i = 0; i < this.gameFieldSize + 1; ++i) {
             for (int j = 0; j < this.gameFieldSize + 1; ++j) {
                 System.out.printf("%s ", this.gameField[i][j]);
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+    private void printWithoutShips() {
+        for (int i = 0; i < this.gameFieldSize + 1; ++i) {
+            for (int j = 0; j < this.gameFieldSize + 1; ++j) {
+                if (this.gameField[i][j].equals("O")) {
+                    System.out.print("~ ");
+                } else {
+                    System.out.printf("%s ", this.gameField[i][j]);
+                }
             }
             System.out.println();
         }
