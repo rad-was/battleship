@@ -40,7 +40,7 @@ public class Battleship {
     public void startGame() {
         addShips();
         System.out.println("The game starts!\n");
-        print();
+        printWithoutShips();
         shoot();
     }
 
