@@ -186,6 +186,10 @@ public class Battleship {
                     } else {
                         System.out.println("You hit a ship! Try again:\n");
                     }
+                } else if (this.gameField[row][column].equals("S")) {
+                    System.out.println();
+                    printWithoutShips();
+                    System.out.println("You hit a ship! Try again:\n");
                 } else {
                     this.gameField[row][column] = "M";
                     System.out.println();
@@ -211,8 +215,6 @@ public class Battleship {
             this.dx = dx;
             this.dy = dy;
         }
-
-
     }
 
     private boolean shipSunken(int row, int column) {
@@ -233,7 +235,6 @@ public class Battleship {
                 }
             }
         }
-        // HashMap<ArrayList<Integer>, Direction> edge = new HashMap<>();
         for (Direction d : directionsOfAdjacentXFields) {
             int newRow = row;
             int newColumn = column;
@@ -250,8 +251,15 @@ public class Battleship {
                     break;
                 }
             }
+            // Mark sunken ship on the game field
+            newRow = row;
+            newColumn = column;
+            while (gameField[newRow][newColumn].equals("X")) {
+                gameField[newRow][newColumn] = "S";
+                newRow += d.dy;
+                newColumn += d.dx;
+            }
         }
-
         return true;
     }
 
@@ -270,6 +278,8 @@ public class Battleship {
             for (int j = 0; j < this.gameFieldSize + 1; ++j) {
                 if (this.gameField[i][j].equals("O")) {
                     System.out.print("~ ");
+                } else if (this.gameField[i][j].equals("S")) {
+                    System.out.print("X ");
                 } else {
                     System.out.printf("%s ", this.gameField[i][j]);
                 }
