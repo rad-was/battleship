@@ -1,9 +1,7 @@
 package battleship;
 
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Scanner;
+import java.util.*;
 
 public class Battleship {
     private final int gameFieldSize;  // max size would be 26 because that many letters in the alphabet
@@ -18,6 +16,7 @@ public class Battleship {
     }
     private int row1, row2, column1, column2;
     private boolean assigned = false;
+    private int shipsSunken = 0;
 
     public Battleship(int size) {
         this.gameFieldSize = size;
@@ -43,7 +42,11 @@ public class Battleship {
         addShips();
         System.out.println("The game starts!\n");
         printWithoutShips();
-        shoot();
+        System.out.println("Take a shot!\n");
+        while (shipsSunken != ships.size()) {
+            shoot();
+        }
+        System.out.println("You sank the last ship. You won. Congratulations!");
     }
 
     // Add ships
@@ -84,30 +87,46 @@ public class Battleship {
         // Check if ship doesn't touch any other ships
         assignCoordinatesToRowsAndColumns(coordinates);
         if (row1 == row2) {
-            return checkCoordinatesOnRowOrColumn(shipName, column1, column2);
+            return checkCoordinatesOnRowOrColumn(shipName, column1, column2, "rows");
         } else if (column1 == column2) {
-            return checkCoordinatesOnRowOrColumn(shipName, row1, row2);
+            return checkCoordinatesOnRowOrColumn(shipName, row1, row2, "columns");
         } else {
             System.out.println("Error 4! Ships can only be placed in a straight line! Try again:");
             return false;
         }
     }
 
-    private boolean checkCoordinatesOnRowOrColumn(String shipName, int rowOrColumn1, int rowOrColumn2) {
+    //
+    //  WORKS BUT FIX DUPLICATE ERROR 6 LATER
+    //
+    private boolean checkCoordinatesOnRowOrColumn(String shipName, int rowOrColumn1, int rowOrColumn2, String rowsOrColumns) {
         int min = Math.min(rowOrColumn1, rowOrColumn2);
         int max = Math.max(rowOrColumn1, rowOrColumn2);
         if (!(max - min + 1 == ships.get(shipName))) {  // Check if ship takes up correct number of fields
             System.out.println("Error 5! Coordinates don't match the number of fields for the current ship! Try again:");
             return false;
         }
-        for (int column = min; column <= max; ++column) {  // Check if ship doesn't touch any other ships
-            if (this.gameField[row1][column].contains("O") ||
-                    this.gameField[row1 - 1][column].contains("O") ||
-                    this.gameField[row1 + 1][column].contains("O") ||
-                    this.gameField[row1][column - 1].contains("O") ||
-                    this.gameField[row1][column + 1].contains("O")) {
-                System.out.println("Error 6! Ship cannot touch any other ship! Try again:");
-                return false;
+        if (rowsOrColumns.equals("rows")) {
+            for (int i = min; i <= max; ++i) {  // Check if ship doesn't touch any other ships
+                if (this.gameField[row1][i].contains("O") ||
+                        this.gameField[row1 - 1][i].contains("O") ||
+                        this.gameField[row1 + 1][i].contains("O") ||
+                        this.gameField[row1][i - 1].contains("O") ||
+                        this.gameField[row1][i + 1].contains("O")) {
+                    System.out.println("Error 6! Ship cannot touch any other ship! Try again:");
+                    return false;
+                }
+            }
+        } else if (rowsOrColumns.equals("columns")) {
+            for (int i = min; i <= max; ++i) {  // Check if ship doesn't touch any other ships
+                if (this.gameField[i][column1].contains("O") ||
+                        this.gameField[i - 1][column1].contains("O") ||
+                        this.gameField[i + 1][column1].contains("O") ||
+                        this.gameField[i][column1 - 1].contains("O") ||
+                        this.gameField[i][column1 + 1].contains("O")) {
+                    System.out.println("Error 6! Ship cannot touch any other ship! Try again:");
+                    return false;
+                }
             }
         }
         return true;
@@ -144,10 +163,9 @@ public class Battleship {
     }
 
     private void shoot() {
-        System.out.println("Take a shot!\n");
-        System.out.print("> ");
         Scanner scanner = new Scanner(System.in);
         while (true) {
+            System.out.print("> ");
             String shotCoordinate = scanner.nextLine();
             // Check if valid coordinate
             if (shotCoordinate.matches("^[A-Z]([1-9]|1\\d|2[0-6])$") &&
@@ -156,23 +174,85 @@ public class Battleship {
                 // Check if hit or miss
                 int row = shotCoordinate.charAt(0) - 'A' + 1;
                 int column = Integer.parseInt(shotCoordinate.substring(1));
-                if (this.gameField[row][column].equals("O")) {
+                if (this.gameField[row][column].equals("O") || this.gameField[row][column].equals("X")) {
                     this.gameField[row][column] = "X";
                     System.out.println();
                     printWithoutShips();
-                    System.out.println("\nYou hit a ship!\n");
+                    if (shipSunken(row, column)) {
+                        shipsSunken++;
+                        if (shipsSunken != ships.size()) {
+                            System.out.println("You sank a ship! Specify a new target:\n");
+                        }
+                    } else {
+                        System.out.println("You hit a ship! Try again:\n");
+                    }
                 } else {
                     this.gameField[row][column] = "M";
                     System.out.println();
                     printWithoutShips();
-                    System.out.println("\nYou missed!\n");
+                    System.out.println("You missed! Try again:\n");
                 }
-                print();
                 break;
             } else {
-                System.out.println("Wrong coordinate. Try again.");
+                System.out.println("\nWrong coordinate. Try again:\n");
             }
         }
+    }
+
+    private enum Direction {
+        UP(0, 1),
+        DOWN(0, -1),
+        LEFT(-1, 0),
+        RIGHT(1, 0);
+
+        private final int dx, dy;
+
+        Direction(int dx, int dy) {
+            this.dx = dx;
+            this.dy = dy;
+        }
+
+
+    }
+
+    private boolean shipSunken(int row, int column) {
+        ArrayList<Direction> directionsOfAdjacentXFields = new ArrayList<>();
+        for (int dx = -1; dx <= 1; ++dx) {
+            for (int dy = -1; dy <= 1; ++dy) {
+                if (dx == 0 && dy == 0) {
+                    continue;
+                }
+                String newField = gameField[row + dy][column + dx];
+                if (newField.equals("O")) {
+                    return false;
+                }
+                if (newField.equals("X")) {
+                    directionsOfAdjacentXFields.add(dy == 0 ?
+                            (dx > 0 ? Direction.RIGHT : Direction.LEFT) :
+                            (dy > 0 ? Direction.UP : Direction.DOWN));
+                }
+            }
+        }
+        // HashMap<ArrayList<Integer>, Direction> edge = new HashMap<>();
+        for (Direction d : directionsOfAdjacentXFields) {
+            int newRow = row;
+            int newColumn = column;
+            while (true) {
+                if (gameField[newRow + d.dy][newColumn + d.dx].equals("O")) {
+                    return false;
+                } else if (gameField[newRow + d.dy][newColumn + d.dx].equals("X")) {
+                    if (d.dx == 0) {
+                        newRow = (d.dy == 1 ? newRow + 1 : newRow - 1);
+                    } else {
+                        newColumn = (d.dx == 1 ? newColumn + 1 : newColumn - 1);
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+
+        return true;
     }
 
     private void print() {
