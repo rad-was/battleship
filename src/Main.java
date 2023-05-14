@@ -1,4 +1,4 @@
-package battleship;
+import battleship.*;
 
 
 public class Main {
